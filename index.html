@@ -102,7 +102,7 @@
 
         function setup() {
             createCanvas(900, 350);
-            background(246, 240, 224);
+            clear();
 
             getPoints("b", 150).forEach(point => {
                 particles.push(new Vehicle(point.x, point.y));
@@ -110,7 +110,7 @@
         }
 
         function draw() {
-            background(246, 240, 224);
+            clear();
 
             timer++;
 
