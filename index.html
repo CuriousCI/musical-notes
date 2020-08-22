@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- <script src="https://github.com/processing/p5.js/releases/download/1.1.9/p5.min.js"></script> -->
+    <script src="./dependencies/p5.min.js"></script>
+    <script>
+        function Vehicle(x, y, size) {
+            this.position = createVector(random(width), random(height));
+            this.target = createVector(x, y);
+            this.velocity = p5.Vector.random2D();
+            this.acceleration = createVector();
+            if (size != null) {
+                this.radius = size;
+            } else {
+                this.radius = 8;
+            }
+            this.maxSpeed = 10;
+            this.maxForce = 1;
+        }
+
+        Vehicle.prototype.behaviors = function () {
+            let arrive = this.arrive(this.target);
+            let mouse = createVector(mouseX, mouseY);
+            let flee = this.flee(mouse);
+
+            arrive.mult(1);
+            flee.mult(5);
+
+            this.applyForce(arrive);
+            this.applyForce(flee);
+        }
+
+        Vehicle.prototype.applyForce = function (f) {
+            this.acceleration.add(f);
+        }
+
+        Vehicle.prototype.update = function () {
+            this.position.add(this.velocity);
+            this.velocity.add(this.acceleration);
+            this.acceleration.mult(0);
+        }
+
+        Vehicle.prototype.show = function () {
+            this.color = color(random(22, 163), random(134, 149), random(68, 131));
+            stroke(
+                map(this.position.y, 250, 400, 163, 22),
+                map(this.position.y, 250, 400, 134, 149),
+                map(this.position.y, 250, 400, 68, 131)
+            );
+            strokeWeight(this.radius);
+            point(this.position.x, this.position.y);
+        }
+
+
+        Vehicle.prototype.arrive = function (target) {
+            let desiredPosition = p5.Vector.sub(target, this.position);
+            let desiredMagnitude = desiredPosition.mag();
+            let speed = this.maxSpeed;
+            if (desiredMagnitude < 100) {
+                speed = map(desiredMagnitude, 0, 100, 0, this.maxSpeed);
+            }
+            desiredPosition.setMag(speed);
+            let steer = p5.Vector.sub(desiredPosition, this.velocity);
+            steer.limit(this.maxForce);
+            return steer;
+        }
+
+        Vehicle.prototype.flee = function (target) {
+            let desiredPosition = p5.Vector.sub(target, this.position);
+            let desiredMagnitude = desiredPosition.mag();
+            if (desiredMagnitude < 50) {
+                desiredPosition.setMag(this.maxSpeed);
+                desiredPosition.mult(-1);
+                let steer = p5.Vector.sub(desiredPosition, this.velocity);
+                steer.limit(this.maxForce);
+                return steer;
+            } else {
+                return createVector(0, 0);
+            }
+        }
+
+        Vehicle.prototype.clone = function () {
+            let vehicle = new Vehicle(this.position.x, this.position.y);
+
+            vehicle.position.x = this.position.x;
+            vehicle.position.y = this.position.y;
+
+            vehicle.velocity.x = this.velocity.x;
+            vehicle.velocity.y = this.velocity.y;
+
+            vehicle.acceleration.x = this.acceleration.x;
+            vehicle.acceleration.y = this.acceleration.y;
+
+            return vehicle;
+        }
+
+        let font;
+        let vehicles = [];
+        const notes = ['a', 'e', 'f', 'g'];
+        let noteIndex = 0;
+        let timer = 0;
+        const maxChangeForce = 20;
+        const x = 200, y = 200;
+
+
+        function preload() {
+            font = loadFont('MusicNotes.otf');
+            // font = loadFont('https://github.com/CuriousCI/music-notes-font/blob/master/MusicNotes.otf?raw=true');
+        }
+
+        function setup() {
+            createCanvas(980, 400);
+            background(246, 240, 224);
+
+            const points = font.textToPoints(notes[noteIndex], x, y, 192, {
+                sampleFactor: 0.1
+            });
+
+            points.forEach(point => {
+                vehicles.push(new Vehicle(point.x, point.y, random(3, 15)));
+            });
+        }
+
+        function draw() {
+            background(246, 240, 224);
+
+            timer++;
+
+            if (timer == 120) {
+                updateNote();
+                timer = 0;
+            }
+
+            vehicles.forEach(vehicle => {
+                vehicle.behaviors();
+                vehicle.update();
+                vehicle.show();
+            });
+        }
+
+        function updateNote() {
+            noteIndex++;
+            if (noteIndex > notes.length - 1) {
+                noteIndex = 0;
+            }
+
+            let points = font.textToPoints(notes[noteIndex], x, y, 192, {
+                sampleFactor: 0.1
+            });
+
+            if (points.length < vehicles.length) {
+                let toSplice = vehicles.length - points.length;
+                vehicles.splice(points.length - 1, toSplice);
+
+                points.forEach((point, index) => {
+                    vehicles[index].target = createVector(point.x, point.y);
+
+                    let force = p5.Vector.random2D();
+                    force.mult(random(maxChangeForce));
+                    vehicles[index].applyForce(force);
+                });
+            } else if (points.length > vehicles.length) {
+                for (let index = vehicles.length; index < points.length; index++) {
+                    const vehicle = tempVehicle = vehicles[index - vehicles.length].clone();
+                    vehicle.size = random(3, random(7, 15));
+                    vehicles.push(vehicle);
+                }
+
+                points.forEach((point, index) => {
+                    vehicles[index].target = createVector(point.x, point.y);
+
+
+                    let force = p5.Vector.random2D();
+                    force.mult(random(maxChangeForce));
+                    vehicles[index].applyForce(force);
+                });
+            } else {
+                points.forEach((point, index) => {
+                    vehicles[index].target = createVector(point.x, point.y);
+
+                    let force = p5.Vector.random2D();
+                    force.mult(ranodm(maxChangeForce));
+                    vehicles[index].applyForce(force);
+                });
+                for (var i = 0; i < points.length; i++) {
+                    vehicles[i].target.x = points[i].x;
+                    vehicles[i].target.y = points[i].y;
+
+                    var force = p5.Vector.random2D();
+                    force.mult(random(maxChangeForce));
+                    vehicles[i].applyForce(force);
+                }
+            }
+        }
+    </script>
+
+    <title></title>
+</head>
+
+<body>
+
+</body>
+
+</html>
