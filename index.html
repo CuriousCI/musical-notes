@@ -16,14 +16,14 @@
 
         Vehicle.prototype.behaviors = function () {
             let arrive = this.arrive(this.target);
-            let mouse = createVector(mouseX, mouseY);
-            let flee = this.flee(mouse);
+            // let mouse = createVector(mouseX, mouseY);
+            // let flee = this.flee(mouse);
 
             arrive.mult(1);
-            flee.mult(5);
+            // flee.mult(5);
 
             this.applyForce(arrive);
-            this.applyForce(flee);
+            // this.applyForce(flee);
         }
 
         Vehicle.prototype.applyForce = function (force) {
