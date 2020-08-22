@@ -2,19 +2,14 @@
 <html lang="en">
 
 <head>
-    <!-- <script src="https://github.com/processing/p5.js/releases/download/1.1.9/p5.min.js"></script> -->
     <script src="./dependencies/p5.min.js"></script>
     <script>
-        function Vehicle(x, y, size) {
+        function Vehicle(x, y) {
             this.position = createVector(random(width), random(height));
             this.target = createVector(x, y);
             this.velocity = p5.Vector.random2D();
             this.acceleration = createVector();
-            if (size != null) {
-                this.radius = size;
-            } else {
-                this.radius = 8;
-            }
+            this.radius = random(3, 7);
             this.maxSpeed = 10;
             this.maxForce = 1;
         }
@@ -31,8 +26,8 @@
             this.applyForce(flee);
         }
 
-        Vehicle.prototype.applyForce = function (f) {
-            this.acceleration.add(f);
+        Vehicle.prototype.applyForce = function (force) {
+            this.acceleration.add(force);
         }
 
         Vehicle.prototype.update = function () {
@@ -44,9 +39,9 @@
         Vehicle.prototype.show = function () {
             this.color = color(random(22, 163), random(134, 149), random(68, 131));
             stroke(
-                map(this.position.y, 250, 400, 163, 22),
-                map(this.position.y, 250, 400, 134, 149),
-                map(this.position.y, 250, 400, 68, 131)
+                map(this.position.y, 200, 400, 163, 22),
+                map(this.position.y, 200, 400, 134, 149),
+                map(this.position.y, 200, 400, 68, 131)
             );
             strokeWeight(this.radius);
             point(this.position.x, this.position.y);
@@ -95,29 +90,22 @@
             return vehicle;
         }
 
+
         let font;
-        let vehicles = [];
-        const notes = ['a', 'e', 'f', 'g'];
-        let noteIndex = 0;
+        let particles = [];
         let timer = 0;
         const maxChangeForce = 20;
-        const x = 200, y = 200;
-
 
         function preload() {
             font = loadFont('MusicNotes.otf');
         }
 
         function setup() {
-            createCanvas(980, 400);
+            createCanvas(900, 350);
             background(246, 240, 224);
 
-            const points = font.textToPoints(notes[noteIndex], x, y, 192, {
-                sampleFactor: 0.1
-            });
-
-            points.forEach(point => {
-                vehicles.push(new Vehicle(point.x, point.y, random(3, 15)));
+            getPoints("b", 150).forEach(point => {
+                particles.push(new Vehicle(point.x, point.y));
             });
         }
 
@@ -127,70 +115,56 @@
             timer++;
 
             if (timer == 120) {
-                updateNote();
+                updateParticles();
                 timer = 0;
             }
 
-            vehicles.forEach(vehicle => {
+            particles.forEach(vehicle => {
                 vehicle.behaviors();
                 vehicle.update();
                 vehicle.show();
             });
         }
 
-        function updateNote() {
-            noteIndex++;
-            if (noteIndex > notes.length - 1) {
-                noteIndex = 0;
-            }
+        function getPoints(text, textSize) {
+            const bounds = font.textBounds(text, 0, 0, textSize);
+            const x = width / 2 - bounds.w / 2;
+            const y = height / 2 - bounds.h / 2;
 
-            let points = font.textToPoints(notes[noteIndex], x, y, 192, {
+            return font.textToPoints(text, x, y + 100, textSize, {
                 sampleFactor: 0.1
             });
+        }
 
-            if (points.length < vehicles.length) {
-                let toSplice = vehicles.length - points.length;
-                vehicles.splice(points.length - 1, toSplice);
+        function getRandomText() {
+            const textWidth = random(3, 7);
+            let text = '';
+            for (let _ = 0; _ < textWidth; _++) {
+                text += String.fromCharCode(random(97, 122)) + " ";
+            }
+            return text;
+        }
 
-                points.forEach((point, index) => {
-                    vehicles[index].target = createVector(point.x, point.y);
+        function updateParticles() {
+            const points = getPoints(getRandomText(), 150);
 
-                    let force = p5.Vector.random2D();
-                    force.mult(random(maxChangeForce));
-                    vehicles[index].applyForce(force);
-                });
-            } else if (points.length > vehicles.length) {
-                for (let index = vehicles.length; index < points.length; index++) {
-                    const vehicle = tempVehicle = vehicles[index - vehicles.length].clone();
-                    vehicle.size = random(3, random(7, 15));
-                    vehicles.push(vehicle);
-                }
-
-                points.forEach((point, index) => {
-                    vehicles[index].target = createVector(point.x, point.y);
-
-
-                    let force = p5.Vector.random2D();
-                    force.mult(random(maxChangeForce));
-                    vehicles[index].applyForce(force);
-                });
-            } else {
-                points.forEach((point, index) => {
-                    vehicles[index].target = createVector(point.x, point.y);
-
-                    let force = p5.Vector.random2D();
-                    force.mult(ranodm(maxChangeForce));
-                    vehicles[index].applyForce(force);
-                });
-                for (var i = 0; i < points.length; i++) {
-                    vehicles[i].target.x = points[i].x;
-                    vehicles[i].target.y = points[i].y;
-
-                    var force = p5.Vector.random2D();
-                    force.mult(random(maxChangeForce));
-                    vehicles[i].applyForce(force);
+            if (points.length < particles.length) {
+                let toSplice = particles.length - points.length;
+                particles.splice(points.length - 1, toSplice);
+            } else if (points.length > particles.length) {
+                for (let index = particles.length; index < points.length; index++) {
+                    const particle = particles[index - particles.length].clone();
+                    particles.push(particle);
                 }
             }
+
+            points.forEach((point, index) => {
+                particles[index].target = createVector(point.x, point.y);
+
+                let force = p5.Vector.random2D();
+                force.mult(random(maxChangeForce));
+                particles[index].applyForce(force);
+            });
         }
     </script>
 
