@@ -37,12 +37,12 @@
         }
 
         Vehicle.prototype.show = function () {
-            this.color = color(random(22, 163), random(134, 149), random(68, 131));
-            stroke(
-                map(this.position.y, 200, 400, 163, 22),
-                map(this.position.y, 200, 400, 134, 149),
-                map(this.position.y, 200, 400, 68, 131)
+            const strokeColor = lerpColor(
+                color(163, 134, 131),
+                color(221, 149, 68),
+                map(this.position.y, 50, 300, 0, 1)
             );
+            stroke(strokeColor);
             strokeWeight(this.radius);
             point(this.position.x, this.position.y);
         }
@@ -137,10 +137,11 @@
         }
 
         function getRandomText() {
-            const textWidth = random(3, 7);
+            const letters = "abefhpqrtwxyAEHSTZ"
+            const textWidth = random(4, 5);
             let text = '';
             for (let _ = 0; _ < textWidth; _++) {
-                text += String.fromCharCode(random(97, 122)) + " ";
+                text += `${letters[floor(random(letters.length))]} `;
             }
             return text;
         }
