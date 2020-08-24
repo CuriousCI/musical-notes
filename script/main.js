@@ -1,37 +1,3 @@
-let font;
-let particles = [];
-let timer = 0;
-const maxChangeForce = 20;
-
-function preload() {
-    font = loadFont('../assets/MusicNotes.otf');
-}
-
-function setup() {
-    createCanvas(900, 350);
-    clear();
-
-    getPoints("b", 150).forEach(point => {
-        particles.push(new Particle(point.x, point.y));
-    });
-}
-
-function draw() {
-    clear();
-
-    timer++;
-
-    if (timer == 180) {
-        updateParticles();
-        timer = 0;
-    }
-
-    particles.forEach(particle => {
-        particle.behaviors();
-        particle.update();
-        particle.show();
-    });
-}
 
 function getPoints(text, textSize) {
     const bounds = font.textBounds(text, 0, 0, textSize);
