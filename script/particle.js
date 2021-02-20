@@ -13,9 +13,9 @@ class Particle {
         this.maxForce = 1;
     }
 
-    applyForce(force) {
-        this.acceleration.add(force);
-    }
+    applyForce =
+        force => this.acceleration.add(force);
+
 
     steer(target) {
         let desiredPosition = p5.Vector.sub(target, this.position);
@@ -56,18 +56,8 @@ class Particle {
         point(this.position.x, this.position.y);
     }
 
-    clone() {
-        let particle = new Particle(this.position.x, this.position.y);
-
-        particle.position.x = this.position.x;
-        particle.position.y = this.position.y;
-
-        particle.velocity.x = this.velocity.x;
-        particle.velocity.y = this.velocity.y;
-
-        particle.acceleration.x = this.acceleration.x;
-        particle.acceleration.y = this.acceleration.y;
-
-        return particle;
-    }
+    clone = _ => new Particle(
+        this.position.x,
+        this.position.y
+    );
 }
