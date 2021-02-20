@@ -8,8 +8,6 @@
     <script>
         let font;
         let particles = [];
-        let timer = 0;
-        const maxChangeForce = 20;
 
         function preload() {
             font = loadFont("MusicNotes.otf");
@@ -19,40 +17,32 @@
             createCanvas(900, 350);
             clear();
 
-            toPoints("b", 150).forEach(point => {
-                particles.push(new Particle(point.x, point.y));
-            });
+            toPoints("b", 150).forEach(point =>
+                particles.push(new Particle(point.x, point.y))
+            );
+
+            window.setInterval(updateText, 3000);
         }
 
         function draw() {
             clear();
 
-            timer++;
-
-            if (timer == 180) {
-                updateParticles();
-                timer = 0;
+            for (particle of particles) {
+                particle.steer();
+                particle.move();
+                particle.display();
             }
-
-            particles.forEach(particle => {
-                particle.behave();
-                particle.update();
-                particle.show();
-            });
         }
     </script>
     <style>
         body {
             margin: unset;
-            border: unset;
-            padding: unset;
         }
     </style>
     <title></title>
 </head>
 
 <body>
-
 </body>
 
 </html>
