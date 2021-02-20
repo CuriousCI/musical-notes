@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-    <script src="./dependencies/p5.min.js"></script>
-    <script src="./script/particle.js"></script>
-    <script src="./script/main.js"></script>
+    <script src="dependencies/p5.min.js"></script>
+    <script src="script/particle.js"></script>
+    <script src="script/main.js"></script>
     <script>
         let font;
         let particles = [];
@@ -19,7 +19,7 @@
             createCanvas(900, 350);
             clear();
 
-            getPoints("b", 150).forEach(point => {
+            toPoints("b", 150).forEach(point => {
                 particles.push(new Particle(point.x, point.y));
             });
         }
@@ -35,7 +35,7 @@
             }
 
             particles.forEach(particle => {
-                particle.behaviors();
+                particle.behave();
                 particle.update();
                 particle.show();
             });

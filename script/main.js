@@ -1,5 +1,4 @@
-
-function getPoints(text, textSize) {
+function toPoints(text, textSize) {
     const bounds = font.textBounds(text, 0, 0, textSize);
     const x = width / 2 - bounds.w / 2;
     const y = height / 2 - bounds.h / 2;
@@ -9,21 +8,24 @@ function getPoints(text, textSize) {
     });
 }
 
-function getRandomText() {
+function randomText() {
     const letters = "abefhpqrtwxyAEHSTZ"
     const textWidth = random(4, 5);
     let text = '';
-    for (let _ = 0; _ < textWidth; _++) {
+    for (let _ = 0; _ < textWidth; _++)
         text += `${letters[floor(random(letters.length))]} `;
-    }
+
     return text;
 }
 
 function updateParticles() {
-    const points = getPoints(getRandomText(), 150);
+    const points = toPoints(randomText(), 150);
 
     if (points.length < particles.length) {
-        particles.splice(points.length - 1, particles.length - points.length);
+        particles.splice(
+            points.length - 1,
+            particles.length - points.length
+        );
     } else if (points.length > particles.length) {
         for (let index = particles.length; index < points.length; index++) {
             const particle = particles[index - particles.length].clone();
